@@ -12,8 +12,10 @@ def _parse_args():
     parser.add_argument("--training_fraction", type=float, required=True)
     parser.add_argument("--prime", type=int, required=True)
     parser.add_argument("--max_steps", type=int, required=True)
+    parser.add_argument("--num_sum", type=int, default=2)
     # Regularization
     parser.add_argument("--dropout", type=float, default=0)
+    parser.add_argument("--noise_ratio", type=float, default=0)
     parser.add_argument("--optimizer_tag", type=str, default="AdamW")
     # Experiment
     parser.add_argument("--log_npz", type=str, required=True)
@@ -40,10 +42,10 @@ def main(args: argparse.Namespace):
     logs = transformer_fraction(
         fraction=args.training_fraction,
         modulus=args.prime,
-        num_sum=2,
+        num_sum=args.num_sum,
         max_opt_times=args.max_steps,
         dropout=args.dropout,
-        noise_ratio=0,
+        noise_ratio=args.noise_ratio,
         optim_class=optimizer_type,
         optim_params=optimizer_cfg,
     )
