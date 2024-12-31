@@ -8,6 +8,7 @@ from typing import Optional, Tuple, List
 def _parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--log_npz", type=str, required=True)
+    parser.add_argument("--downsample", type=int, default=0)
     args = parser.parse_args()
     return args
 
@@ -35,11 +36,16 @@ def plot_multiple_lines(
     y_lim: Optional[Tuple[float, float]] = None,
     horizonal_lines: bool = False,
     vertical_lines: bool = False,
+    downsample: int = 0,
 ):
     if colors is None:
         colors = color_palette("husl", len(y_list))
 
     plt.figure(figsize=(6, 4))
+
+    if downsample > 0:
+        x = x[::downsample]
+        y_list = [y[::downsample] for y in y_list]
     
     for i in range(len(y_list)):
         label = label_list[i] if label_list is not None else f"{i}"
@@ -87,6 +93,7 @@ def main(args: argparse.Namespace):
                 x=x,
                 y_list=[logs[f"train_{key}"], logs[f"val_{key}"]],
                 label_list=[f"train_{key}", f"val_{key}"],
+                downsample=args.downsample,
             )
 
 if __name__ == "__main__":
