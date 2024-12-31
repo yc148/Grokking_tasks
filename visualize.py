@@ -83,9 +83,8 @@ def main(args: argparse.Namespace):
     workdir = log_npz.parent.joinpath(log_npz.stem)
     workdir.mkdir(exist_ok=True)
 
-    max_step = logs["train_loss"].shape[0]
-    steps = np.arange(max_step) + 1
-    log_steps = np.log10(steps)
+    steps = logs["step"]
+    log_steps = np.log10(steps + 1)
     for key in ["loss", "acc"]:
         for x, tag in zip([steps, log_steps], ["", "_log"]):
             plot_multiple_lines(

@@ -19,6 +19,7 @@ def _parse_args():
     parser.add_argument("--optimizer_tag", type=str, default="AdamW")
     # Experiment
     parser.add_argument("--log_npz", type=str, required=True)
+    parser.add_argument("--log_every", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", type=str, default="cpu")
     args = parser.parse_args()
@@ -40,6 +41,7 @@ def main(args: argparse.Namespace):
     set_seed(args.seed)
     optimizer_type, optimizer_cfg = _get_optimizer_configs(args.optimizer_tag)
     logs = transformer_fraction(
+        args,
         fraction=args.training_fraction,
         modulus=args.prime,
         num_sum=args.num_sum,
