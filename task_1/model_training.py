@@ -3,6 +3,7 @@ from torch import nn, optim
 import torch.nn.functional as F 
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 from math import ceil
 from .dataprocess import data_generation, loss_record, multi_data_generation, cal_accuracy
 from .transformer import Transformer
@@ -28,10 +29,6 @@ def transformer_fraction(fraction:float=0.5,modulus:int=31,num_sum:int=2,max_opt
     batch_size=min(ceil(train_num/2.0),512)
     max_epoches=int(max_opt_times/ceil(train_num/batch_size))
     #train_dataset,test_dataset=data_generation(device,fraction=fraction,MODULUS:int=31,num_sum:int=2)#生成训练集，测试集
-    train_loss=torch.zeros(max_opt_times)#.to(device)
-    train_acc=torch.zeros(max_opt_times)#.to(device)
-    valid_acc=torch.zeros(max_opt_times)#.to(device)
-    valid_loss=torch.zeros(max_opt_times)#.to(device)
     train_dataset,test_dataset=multi_data_generation(device,fraction=fraction,MODULUS=modulus,num_sum=num_sum)#生成训练集，测试集
     train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
     test_loader=DataLoader(test_dataset,batch_size=batch_size,shuffle=False)
@@ -40,7 +37,10 @@ def transformer_fraction(fraction:float=0.5,modulus:int=31,num_sum:int=2,max_opt
     optimizer=optim_class(T_model.parameters(),**optim_params)
     scheduler=LambdaLR(optimizer,lr_lambda=linear_warmup_schedule(warmup_steps=10))#学习率管理
     iter=0
-    for i in range(max_epoches):
+    logs = {}
+    for tag in ["train_loss", "train_acc", "val_loss", "val_acc"]:
+        logs[tag] = []
+    for i in tqdm(range(max_epoches), total=max_epoches):
         for data,label in train_loader:
             T_model.train()
             T_model.zero_grad()
@@ -49,14 +49,13 @@ def transformer_fraction(fraction:float=0.5,modulus:int=31,num_sum:int=2,max_opt
             loss.backward()
             optimizer.step()
             scheduler.step()
-            train_loss[iter]=loss
-            train_acc[iter]=cal_accuracy(output[:,-1],label)/label.size(-1)
+            logs["train_loss"].append(loss.item())
+            logs["train_acc"].append(cal_accuracy(output[:,-1],label)/label.size(-1))
             #train_loss[iter],train_acc[iter]=loss_record(T_model,train_loader)#误差计算
-            valid_loss[iter],valid_acc[iter]=loss_record(T_model,test_loader)
+            val_loss, val_acc = loss_record(T_model,test_loader)
+            logs["val_loss"].append(val_loss.item() / valid_num)
+            logs["val_acc"].append(val_acc / valid_num)
             iter+=1
         #print(f'epoch {i} finished!')
         #print(train_acc[iter-1],valid_acc[iter-1])
-    return train_loss[:iter],train_acc[:iter],valid_loss[:iter]/float(valid_num),valid_acc[:iter]/float(valid_num)
-
-
-
+    return logs
