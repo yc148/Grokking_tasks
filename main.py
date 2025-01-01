@@ -33,6 +33,24 @@ def _get_optimizer_configs(tag: str):
             "betas": (0.9, 0.98),
             "weight_decay": 1.0,
         }
+    elif tag == "Adam":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 1e-3,
+            "betas": (0.9, 0.98),
+        }
+    elif tag == "Adam_lr0.3x":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 3e-4,
+            "betas": (0.9, 0.98),
+        }
+    elif tag == "Adam_lr3x":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 3e-3,
+            "betas": (0.9, 0.98),
+        }
     else:
         raise NotImplementedError
     return type, cfg
