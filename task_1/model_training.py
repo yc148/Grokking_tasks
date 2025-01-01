@@ -20,8 +20,7 @@ def linear_warmup_schedule(warmup_steps):#学习率线性warm-up
 
 def transformer_fraction(args,fraction:float=0.5,modulus:int=31,num_sum:int=2,max_opt_times:int=50000,
                          dropout=0.1,noise_ratio:float=0.0,optim_class=torch.optim.AdamW,optim_params={}):
-    device = torch.device("mps" if torch.backends.mps.is_available() 
-                        else "cuda" if torch.cuda.is_available() else "cpu")
+    device = args.device
     #fraction=0.7#训练集占比
     data_num=modulus**num_sum
     train_num=int(data_num*fraction)
