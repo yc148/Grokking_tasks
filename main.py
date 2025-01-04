@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from task_1.dataprocess import set_seed
-from task_1.model_training import transformer_fraction
+from src.dataprocess import set_seed
+from src.model_training import transformer_fraction
 
 def _parse_args():
     parser = argparse.ArgumentParser()
