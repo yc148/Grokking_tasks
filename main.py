@@ -17,10 +17,13 @@ def _parse_args():
     parser.add_argument("--dropout", type=float, default=0)
     parser.add_argument("--noise_ratio", type=float, default=0)
     parser.add_argument("--optimizer_tag", type=str, default="AdamW")
+    parser.add_argument("--max_grad_norm", type=float, default=None)
     # Experiment
     parser.add_argument("--log_npz", type=str, required=True)
+    parser.add_argument("--log_every", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--perturb_ratio", type=float, default=0)
     args = parser.parse_args()
     return args
 
@@ -32,6 +35,24 @@ def _get_optimizer_configs(tag: str):
             "betas": (0.9, 0.98),
             "weight_decay": 1.0,
         }
+    elif tag == "Adam":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 1e-3,
+            "betas": (0.9, 0.98),
+        }
+    elif tag == "Adam_lr0.3x":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 3e-4,
+            "betas": (0.9, 0.98),
+        }
+    elif tag == "Adam_lr3x":
+        type = torch.optim.Adam
+        cfg = {
+            "lr": 3e-3,
+            "betas": (0.9, 0.98),
+        }
     else:
         raise NotImplementedError
     return type, cfg
@@ -40,6 +61,7 @@ def main(args: argparse.Namespace):
     set_seed(args.seed)
     optimizer_type, optimizer_cfg = _get_optimizer_configs(args.optimizer_tag)
     logs = transformer_fraction(
+        args,
         fraction=args.training_fraction,
         modulus=args.prime,
         num_sum=args.num_sum,
