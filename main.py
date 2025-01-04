@@ -17,11 +17,13 @@ def _parse_args():
     parser.add_argument("--dropout", type=float, default=0)
     parser.add_argument("--noise_ratio", type=float, default=0)
     parser.add_argument("--optimizer_tag", type=str, default="AdamW")
+    parser.add_argument("--max_grad_norm", type=float, default=None)
     # Experiment
     parser.add_argument("--log_npz", type=str, required=True)
     parser.add_argument("--log_every", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--perturb_ratio", type=float, default=0)
     args = parser.parse_args()
     return args
 

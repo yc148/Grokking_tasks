@@ -167,12 +167,39 @@ def draw_q3(args: argparse.Namespace):
         horizonal_lines=True,
         vertical_lines=True,
     )
+
+def draw_q5(args: argparse.Namespace):
+    log_npz = Path(args.log_npz)
+    with np.load(log_npz.as_posix()) as data:
+        logs = {key: data[key] for key in data}
+    workdir = log_npz.parent.joinpath(log_npz.stem)
+    workdir.mkdir(exist_ok=True)
+
+    steps = logs["step"]
     
+    for key in ["w", "g"]:
+        y1 = logs[f"{key}l1"]
+        y2 = logs[f"{key}l2"]
+        y3 = logs[f"{key}linf"]
+        # y1 = y1 / y1.max()
+        y2 = y2 / y2.max()
+        # y3 = y3 / y3.max()
+        plot_multiple_lines(
+            workdir.joinpath(f"{key}.png"),
+            x=steps,
+            y_list=[logs[f"train_acc"], logs[f"val_acc"], y2],
+            label_list=[f"train_acc", f"val_acc", f"{key}_norm"],
+            downsample=args.downsample,
+        )
+
 if __name__ == "__main__":
     args = _parse_args()
     if args.task == "main":
         main(args)
     elif args.task == "q3":
         draw_q3(args)
+    elif args.task == "q5":
+        main(args)
+        draw_q5(args)
     else:
         raise NotImplementedError
