@@ -9,6 +9,7 @@ Our experiment uses below versions and anaconda env:
 - matplotlib=3.10.0
 - numpy=1.23.1
 - torch=2.5.1
+- torch_geometric=2.6.1
 - tqdm=4.64.0
 
 ## How to run

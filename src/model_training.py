@@ -7,6 +7,8 @@ from tqdm import tqdm
 from math import ceil
 from .dataprocess import data_generation, loss_record, multi_data_generation, cal_accuracy
 from .transformer import Transformer
+from .lstm import ModularAdditionLSTM
+from .gnn import ModularAdditionGNN
 
 def linear_warmup_schedule(warmup_steps):#学习率线性warm-up
     def lr_lambda(current_step):
@@ -54,7 +56,14 @@ def transformer_fraction(args,fraction:float=0.5,modulus:int=31,num_sum:int=2,ma
     train_loader=DataLoader(train_dataset,batch_size=batch_size,shuffle=True)
     test_loader=DataLoader(test_dataset,batch_size=batch_size,shuffle=False)
     ce_loss=nn.CrossEntropyLoss()
-    T_model=Transformer(context_len=2*num_sum,vocab_len=modulus+2,dropout=dropout,noise_ratio=noise_ratio).to(device)
+    if args.architecture == "Transformer":
+        T_model=Transformer(context_len=2*num_sum,vocab_len=modulus+2,dropout=dropout,noise_ratio=noise_ratio).to(device)
+    elif args.architecture == "LSTM":
+        T_model = ModularAdditionLSTM(vocab_len=modulus+2, noise_ratio=noise_ratio).to(device)
+    elif args.architecture == "GNN":
+        T_model = ModularAdditionGNN(vocab_len=modulus+2, noise_ratio=noise_ratio).to(device)
+    else:
+        assert False
     optimizer=optim_class(T_model.parameters(),**optim_params)
     scheduler=LambdaLR(optimizer,lr_lambda=linear_warmup_schedule(warmup_steps=10))#学习率管理
     iter=0

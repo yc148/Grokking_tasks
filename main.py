@@ -13,6 +13,8 @@ def _parse_args():
     parser.add_argument("--prime", type=int, required=True)
     parser.add_argument("--max_steps", type=int, required=True)
     parser.add_argument("--num_sum", type=int, default=2)
+    # Architecture
+    parser.add_argument("--architecture", type=str, default="Transformer", choices=["Transformer", "GNN", "LSTM"])
     # Regularization
     parser.add_argument("--dropout", type=float, default=0)
     parser.add_argument("--noise_ratio", type=float, default=0)
